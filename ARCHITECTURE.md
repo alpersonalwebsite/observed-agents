@@ -57,7 +57,7 @@ sequenceDiagram
   participant B as agent-b
   participant O as observer
 
-  Note over A,B: situation lives in the system prompt;<br/>nothing is injected into the transcript
+  Note over A,B: situation lives in the system prompt,<br/>nothing is injected into the transcript
   A->>P: model call (tools available)
   P->>P: strip fields, pin model, check $ budget
   P->>OR: forward with key
