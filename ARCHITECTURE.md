@@ -135,7 +135,7 @@ What each layer blocks:
 
 - **Container:** the agents run non-root on a read-only root filesystem with capabilities dropped and no new privileges, no container runtime socket, no host folders.
 - **Network:** the agents' network has no route out at all; the proxy is their only path to the internet, and it reaches only the model provider. The observer and the archiver sit on the outside network: the observer calls the model provider for its notes, and the archiver uploads to the off-box archive.
-- **VM:** a container escape lands in the VM, not on anything important; the VM is a throwaway holding only narrow credentials: model API keys (the agents' is spend-capped) and, when archiving is on, a write-only archive credential.
+- **VM:** a container escape lands in the VM, not on anything important; the VM is a throwaway holding only narrow credentials: spend-capped model API keys and, when archiving is on, a write-only archive credential.
 - **Money:** the proxy's daily budget plus the key's own credit cap bound spend from two directions.
 
 ## The release gate (how anything becomes public)
