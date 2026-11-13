@@ -8,7 +8,7 @@ Two agents live on an internal network with no route to the internet. They reach
 
 ```mermaid
 flowchart TB
-  subgraph inside["inside network (internal - no internet)"]
+  subgraph inside["inside network (internal, no internet)"]
     A["agent-a: opener<br/>shell, non-root, read-only rootfs"]
     B["agent-b: joiner<br/>shell, non-root, read-only rootfs"]
     K["broker<br/>relay + recorder, token auth"]
@@ -119,19 +119,23 @@ flowchart TB
   subgraph host["host (a throwaway VM)"]
     subgraph net["containers"]
       ag["agents (inside network)<br/>no egress, non-root, read-only rootfs,<br/>capabilities dropped, no host mounts"]
-      svc["broker + observer + archiver (opt-in)"]
+      brk["broker (inside network, no egress)"]
+      obs["observer (outside network)"]
+      arv["archiver, opt-in (outside network)"]
       px["proxy (bridges inside and outside)"]
     end
   end
-  px -->|"only egress path"| OR
-  svc -. "observer notes" .-> OR
+  ARC(["off-box archive"])
+  px -->|"agents' only egress path"| OR
+  obs -. "observer notes" .-> OR
+  arv -. "upload (write-once)" .-> ARC
 ```
 
 What each layer blocks:
 
 - **Container:** the agents run non-root on a read-only root filesystem with capabilities dropped and no new privileges, no container runtime socket, no host folders.
-- **Network:** the agents' network has no route out at all; only the proxy reaches the internet, and only the model provider.
-- **VM:** a container escape lands in the VM, not on anything important; the VM is a throwaway holding only a spend-capped key.
+- **Network:** the agents' network has no route out at all; the proxy is their only path to the internet, and it reaches only the model provider. The observer and the archiver sit on the outside network: the observer calls the model provider for its notes, and the archiver uploads to the off-box archive.
+- **VM:** a container escape lands in the VM, not on anything important; the VM is a throwaway holding only narrow credentials: spend-capped model API keys and, when archiving is on, a write-only archive credential.
 - **Money:** the proxy's daily budget plus the key's own credit cap bound spend from two directions.
 
 ## The release gate (how anything becomes public)
