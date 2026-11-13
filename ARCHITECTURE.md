@@ -119,14 +119,16 @@ flowchart TB
   subgraph host["host (a throwaway VM)"]
     subgraph net["containers"]
       ag["agents (inside network)<br/>no egress, non-root, read-only rootfs,<br/>capabilities dropped, no host mounts"]
-      svc["broker + observer + archiver (opt-in)"]
+      brk["broker (inside network, no egress)"]
+      obs["observer (outside network)"]
+      arv["archiver, opt-in (outside network)"]
       px["proxy (bridges inside and outside)"]
     end
   end
   ARC(["off-box archive"])
   px -->|"agents' only egress path"| OR
-  svc -. "observer notes" .-> OR
-  svc -. "archiver upload (write-once)" .-> ARC
+  obs -. "observer notes" .-> OR
+  arv -. "upload (write-once)" .-> ARC
 ```
 
 What each layer blocks:
